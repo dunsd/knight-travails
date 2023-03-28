@@ -12,7 +12,7 @@ const Node = (row, col, distFromStart) => {
 };
 
 const getMoves = (row, col) => {
-
+    return [[row-2,col-1], [row-2,col+1], [row-1,col+2],[row-1,col-2], [row+1,col+2], [row+1,col-2],[row+2,col-1],[row+2,col+1]];
 }
 
 const knightMoves = (src, dst) => {
@@ -25,9 +25,19 @@ const knightMoves = (src, dst) => {
     while(queue.length > 0) {
         const currentNode = queue.shift();
 
-        if(src[0] === dst[0] && src[1] === dst[1]) return distFromStart;
+        if(currentNode.row === dst[0] && currentNode.col === dst[1]) {
+            console.log("Success Test");
+            return currentNode.distFromStart; //exit case
+        }
 
+        visited.add(currentNode.getString()); //Use string to ensure unique identifier for node
 
+        for(const move of getMoves(currentNode.row,currentNode.col)) {
+            if(move[0] > 7 || move[1] > 7 || move[0] < 0 || move[1] < 0) continue;
+            const nextMove = Node(move[0],move[1], currentNode.distFromStart+1);
+            if(visited.has(nextMove.getString())) continue;
+            queue.push(nextMove);
+        }
     }
 }
 
@@ -45,3 +55,8 @@ const getBoard = () => {
 const board = getBoard();
 let testNode = Node(0,0,0);
 console.log(testNode.getString());
+
+console.log(getMoves(0,0));
+
+console.log(knightMoves([0,0], [6,3]));
+//knightMoves([0,0], [4,2]);
