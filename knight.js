@@ -1,4 +1,4 @@
-const Node = (row, col, distFromStart) => {
+const Node = (row, col, distFromStart, prevNode = null) => {
 
     function getString(){
         return `${this.row} ${this.col}`;
@@ -17,29 +17,42 @@ const getMoves = (row, col) => {
 }
 
 const knightMoves = (src, dst) => {
+    if(src[0] > 7 || src[0] < 0 || src[1] > 7 || src[1] < 0 || 
+        dst[0] > 7 || dst[0] < 0 || dst[1] > 7 || dst[1] < 0) {
+        console.log("Please use a valid tile between [0,0] and [7,7]");
+        return;
+    }
     const queue = [];
     const startPos = Node(src[0], src[1], 0);
     queue.push(startPos);
-    const path = [];
-    path[root] = null;
     const visited = new Set();
 
     while(queue.length > 0) {
         const currentNode = queue.shift();
 
-        if(currentNode.row === dst[0] && currentNode.col === dst[1]) {
-            console.log("Success Test");
-            //console.log(currentNode.path);
-            return currentNode.distFromStart; //exit case
+        if(currentNode.row === dst[0] && currentNode.col === dst[1]) { //exit case
+            let path = [`[${currentNode.row}, ${currentNode.col}]`];
+            const shortestDist = currentNode.distFromStart;
+            
+            while(currentNode.prevNode != null){
+            let nextAns = `[${currentNode.prevNode.row}, ${currentNode.prevNode.col}]`;
+            path.push(nextAns);
+            currentNode.prevNode = currentNode.prevNode.prevNode;
+            }
+            console.log(`Success, you made it in ${shortestDist} moves! Here was your path:`);
+            console.log(path.reverse());
+            
+            return shortestDist; 
         }
 
         visited.add(currentNode.getString()); //Use string to ensure unique identifier for node
 
         for(const move of getMoves(currentNode.row,currentNode.col)) {
             if(move[0] > 7 || move[1] > 7 || move[0] < 0 || move[1] < 0) continue;
-            //console.log(currentNode.path)
+
             const nextMove = Node(move[0],move[1], currentNode.distFromStart+1);
-            //path = path.concat([move]);
+            nextMove.prevNode = currentNode;
+            
             if(visited.has(nextMove.getString())) continue;
             if(nextMove) {
             queue.push(nextMove);
@@ -66,4 +79,7 @@ console.log(testNode.getString());
 console.log(getMoves(0,0));
 
 console.log(knightMoves([0,0], [6,3]));
-//knightMoves([0,0], [4,2]);
+knightMoves([0,0], [6,6]);
+knightMoves([2,5], [7,3]);
+
+knightMoves([0,-1], [3,8]);
